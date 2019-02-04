@@ -96,6 +96,7 @@
 #include "uvScrollNode.h"
 #include "textureStagePool.h"
 #include "cmath.h"
+#include "lmatrix.h"
 
 #include <ctype.h>
 #include <algorithm>
@@ -2801,14 +2802,22 @@ make_box(EggGroup *egg_group, EggGroup::CollideFlags flags,
       return false;
     }
 
+    /* Transform the vertices into local coords before finding minmax points,
+     * otherwise the shape will be based on global axes rather than local ones.
+     * Not a problem for most solids (rotational symmetry), but for boxes it's a
+     * breaker.
+     */
+    const LMatrix4d groupTrans = egg_group->get_vertex_to_node();
+
     EggVertex *vertex = (*vi);
-    LVertexd min_pd = vertex->get_pos3();
+    LVertexd min_pd = groupTrans.xform_point(vertex->get_pos3());
     LVertexd max_pd = min_pd;
     color = vertex->get_color();
 
     for (++vi; vi != vertices.end(); ++vi) {
       vertex = (*vi);
-      const LVertexd &pos = vertex->get_pos3();
+      const LVertexd &pos = groupTrans.xform_point(vertex->get_pos3());
+
       min_pd.set(min(min_pd[0], pos[0]),
                  min(min_pd[1], pos[1]),
                  min(min_pd[2], pos[2]));
@@ -3022,6 +3031,8 @@ make_collision_box(EggGroup *egg_group, CollisionNode *cnode,
     CollisionBox *csbox =
       new CollisionBox(min_p, max_p);
     apply_collision_flags(csbox, flags);
+    //Untransform coords from local space to preserve compat with rest of code
+    csbox->xform(LCAST(PN_stdfloat, egg_group->get_node_to_vertex()));
     cnode->add_solid(csbox);
   }
 }
