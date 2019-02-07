@@ -1828,7 +1828,7 @@ make_node(EggGroup *egg_group, PandaNode *parent) {
 
     // Inform the new CollisionNode of the group's local transform (has already
     // been applied to node's vertices)
-    CPT(TransformState) node_transform = TransformState::make_mat(cast_to_float(local_transform));
+    CPT(TransformState) node_transform = TransformState::make_mat(LCAST(PN_stdfloat,local_transform));
     node->set_transform(node_transform);
 
     if ((egg_group->get_collide_flags() & EggGroup::CF_keep) != 0) {
