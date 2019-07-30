@@ -97,11 +97,10 @@ do_transform_changed() {
     _ghost->setInterpolationWorldTransform(trans);
 
     if (ts->has_scale()) {
-      LVecBase3 scale = ts->get_scale();
-      if (!scale.almost_equal(LVecBase3(1.0f, 1.0f, 1.0f))) {
-        for (BulletShape *shape : _shapes) {
-          shape->do_set_local_scale(scale);
-        }
+      btVector3 new_scale = LVecBase3_to_btVector3(ts->get_scale());
+      btVector3 current_scale = _shape->getLocalScaling();
+      if (new_scale != current_scale) {
+        _shape->setLocalScaling(new_scale);
       }
     }
   }

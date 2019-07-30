@@ -345,10 +345,7 @@ do_transform_changed() {
   if (ts->has_scale()) {
     btVector3 new_scale = LVecBase3_to_btVector3(ts->get_scale());
     btVector3 current_scale = _shape->getLocalScaling();
-    btVector3 current_scale_inv(1.0/current_scale.x(), 1.0/current_scale.y(), 1.0/current_scale.z());
-
     if (new_scale != current_scale) {
-      _shape->setLocalScaling(current_scale_inv);
       _shape->setLocalScaling(new_scale);
     }
   }
